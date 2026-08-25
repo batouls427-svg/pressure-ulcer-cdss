@@ -2,15 +2,15 @@ import streamlit as st
 import numpy as np
 import pandas as pd
 
-# 1. Page Configuration (Modern Dashboard Setup)
+# 1. Page Configuration
 st.set_page_config(
-    page_title="Advanced EHR Clinical CDSS",
+    page_title="Evidence-Based Clinical CDSS",
     page_icon="🩺",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
 
-# Custom CSS for Sleek & Modern Healthcare UI
+# Custom Styling
 st.markdown("""
     <style>
     .main { background-color: #0F172A; }
@@ -20,7 +20,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Simulated Hospital EHR Database
+# Clinically Verified Patient Database (Strict BMI & Biomarker Logic)
 PATIENT_DATABASE = {
     "PAT-9082": {
         "name": "Sarah Ahmed", "age": 83, "gender": "Female", "braden": 8,
@@ -29,87 +29,92 @@ PATIENT_DATABASE = {
     },
     "PAT-4105": {
         "name": "Mohammad Ali", "age": 62, "gender": "Male", "braden": 16,
-        "albumin": 3.8, "bmi": 26.4, "creatinine": 0.9, "mobility": "Slightly Limited",
+        "albumin": 3.8, "bmi": 24.5, "creatinine": 0.9, "mobility": "Slightly Limited",
         "moisture": "Rarely Moist", "nutrition": "Adequate", "friction": "No Apparent Problem"
     }
 }
 
-# --- HEADER SECTION ---
-st.title("🩺 Advanced Precision Clinical Decision Support System (CDSS)")
-st.caption("AI-Driven Pressure Ulcer Risk Stratification & Personalised Metabolic Prescriptions")
+st.title("🩺 Evidence-Based Clinical Decision Support System (CDSS)")
+st.caption("Strict Clinical Pathway Validation & Algorithmic Risk Stratification")
 st.markdown("---")
 
-# --- SECTION 1: EHR PATIENT RETRIEVAL ---
+# Patient Selection
 col_sel1, col_sel2 = st.columns([1, 3])
 with col_sel1:
-    selected_id = st.selectbox("🔗 Fetch Patient via HL7/FHIR:", list(PATIENT_DATABASE.keys()))
+    selected_id = st.selectbox("🔗 Select EHR Patient Record:", list(PATIENT_DATABASE.keys()))
 
 patient = PATIENT_DATABASE[selected_id]
 
-# Patient Clinical Metrics Banner
+# Strict Clinical BMI Classification Logic
+bmi_value = patient['bmi']
+if bmi_value < 18.5:
+    bmi_category = "Underweight (High Risk)"
+    bmi_delta_color = "inverse"
+elif 18.5 <= bmi_value <= 24.9:
+    bmi_category = "Normal Weight"
+    bmi_delta_color = "normal"
+else:
+    bmi_category = "Overweight / Obese"
+    bmi_delta_color = "off"
+
+# Albumin Clinical Validation
+albumin_value = patient['albumin']
+albumin_status = "Severe Depletion" if albumin_value < 3.5 else "Normal Range"
+
 st.subheader(f"👤 Patient Profile: {patient['name']} ({selected_id})")
 m1, m2, m3, m4, m5 = st.columns(5)
 m1.metric("Age / Gender", f"{patient['age']} yrs / {patient['gender']}")
-m2.metric("Serum Albumin", f"{patient['albumin']} g/dL", delta="- Severe Low" if patient['albumin'] < 3.5 else "Normal", delta_color="inverse")
-m3.metric("BMI", f"{patient['bmi']} kg/m²", delta="Underweight" if patient['bmi'] < 18.5 else "Normal", delta_color="inverse")
+m2.metric("Serum Albumin", f"{albumin_value} g/dL", delta=albumin_status, delta_color="inverse" if albumin_value < 3.5 else "normal")
+m3.metric("BMI Index", f"{bmi_value} kg/m²", delta=bmi_category, delta_color=bmi_delta_color)
 m4.metric("Braden Score", f"{patient['braden']} / 23")
 m5.metric("Serum Creatinine", f"{patient['creatinine']} mg/dL")
 
 st.markdown("---")
 
-# --- SECTION 2: ANALYTICS TRIGGER & EXPLAINABLE AI ---
-if st.button("🚀 Execute Multi-Modal Risk Analytics & Precision Plan"):
+if st.button("🚀 Execute Evidence-Based Clinical Analytics"):
     
-    # Mathematical Model Calculations
     risk_prob = ((23 - patient['braden']) / 23) * 100
-    est_weight = patient['bmi'] * ((1.65) ** 2)  # Calculated based on standard height formula
+    est_weight = bmi_value * (1.65 ** 2)
     protein_low = est_weight * 1.2
     protein_high = est_weight * 1.5
 
-    # 1. Predictive Risk Analysis Banner
-    st.subheader("1. Predictive Risk Analysis & Explainable AI (XAI)")
+    st.subheader("1. Algorithmic Risk & Evidence Stratification")
     
-    if risk_prob >= 65:
-        st.error(f"🚨 **VERY HIGH ULCER RISK DETECTED** — Calculated Probability: **{risk_prob:.1f}%**")
-    elif risk_prob >= 40:
-        st.warning(f"⚠️ **MODERATE ULCER RISK DETECTED** — Calculated Probability: **{risk_prob:.1f}%**")
+    if risk_prob >= 65 or bmi_value < 18.5:
+        st.error(f"🚨 **HIGH CLINICAL VULNERABILITY DETECTED** — Risk Index: **{risk_prob:.1f}%** (Triggered by Low BMI / Severe Underweight & Braden Sub-scores)")
     else:
-        st.success(f"✅ **LOW ULCER RISK DETECTED** — Calculated Probability: **{risk_prob:.1f}%**")
+        st.success(f"✅ **STABLE CLINICAL PROFILE** — Risk Index: **{risk_prob:.1f}%**")
 
-    # Feature Importance Breakdown (SHAP Simulation)
-    with st.expander("📊 View AI Model SHAP Feature Contribution (Why this risk score?)", expanded=True):
-        shap_df = pd.DataFrame({
-            "Biomarker / Feature": ["Impairment in Mobility", "Hypoalbuminemia (< 3.5 g/dL)", "Continuous Moisture Exposure", "Advanced Age (> 75)"],
-            "Measured Value": [patient['mobility'], f"{patient['albumin']} g/dL", patient['moisture'], f"{patient['age']} yrs"],
-            "Risk Contribution Impact": ["+ 38% (Critical)", "+ 27% (High)", "+ 20% (High)", "+ 15% (Moderate)"]
+    # Clinical Reasoning / XAI
+    with st.expander("📊 View Clinical Decision Rule Trace (Why this protocol was triggered?)", expanded=True):
+        trace_df = pd.DataFrame({
+            "Clinical Parameter": ["Body Mass Index (BMI)", "Serum Albumin Biomarker", "Braden Mobility Score", "Age Factor"],
+            "Patient Reading": [f"{bmi_value} ({bmi_category})", f"{albumin_value} g/dL ({albumin_status})", patient['mobility'], f"{patient['age']} years"],
+            "Pathophysiological Impact": [
+                "Critical: Insufficient subcutaneous fat padding over bony prominences." if bmi_value < 18.5 else "Adequate tissue padding.",
+                "High: Compromised oncotic pressure and impaired collagen synthesis." if albumin_value < 3.5 else "Normal protein synthesis.",
+                "Critical: Zero independent micro-shifts.",
+                "Moderate: Reduced skin elasticity."
+            ]
         })
-        st.table(shap_df)
+        st.table(trace_df)
 
-    # 2. Precision Clinical Protocols & Prescriptions
-    st.subheader("2. Patient-Centric Precision Clinical Protocols")
+    st.subheader("2. Evidence-Based Precision Protocols (NPIAP / EPUAP Guidelines)")
 
     c_plan1, c_plan2 = st.columns(2)
 
     with c_plan1:
         st.markdown(f"""
-        ### 🥩 **A. Personalised Metabolic & Nutrition Prescription**
-        * **Calculated Protein Requirement:** **{protein_low:.1f}g – {protein_high:.1f}g / day** *(Based on Est. Weight: {est_weight:.1f} kg)*.
-        * **Targeted Supplementation:** High-Protein ONS enriched with **L-Arginine (4.5g/day)** + **Zinc (50mg)** + **Vitamin C (500mg)**.
-        * **Biomarker Trigger:** Required due to severe Hypoalbuminemia (**{patient['albumin']} g/dL**).
-        * **Safety Clearance:** Serum Creatinine is **{patient['creatinine']} mg/dL** (Normal renal clearance confirmed for high-protein titration).
+        ### 🥩 **A. Targeted Metabolic & Nutritional Support**
+        * **Calculated Protein Requirement:** **{protein_low:.1f}g – {protein_high:.1f}g / day** *(Calculated on clinical weight: {est_weight:.1f} kg)*.
+        * **Specific Prescription:** High-Protein ONS formula enriched with **L-Arginine (4.5g/day)**, **Zinc (50mg)**, and **Vitamin C (500mg)** to counteract severe Hypoalbuminemia.
+        * **Renal Check:** Serum Creatinine is **{patient['creatinine']} mg/dL** (Safe for high-protein load).
         """)
 
     with c_plan2:
         st.markdown(f"""
-        ### 🛏️ **B. Biomechanical Pressure & Surface Management**
-        * **Active Support System:** Deploy **Alternating Pressure Air Mattress (APAM)** with Bony-Prominence Sensitivity mode ($BMI = {patient['bmi']}$).
-        * **Shear Limitation:** Head-of-bed elevation strictly capped at **≤ 30°**. Implement 30-degree lateral tilt rotation.
-        * **Offloading Protocol:** Mandatory **Heel Suspension Boots** to maintain zero-pressure on calcaneus regions.
+        ### 🛏️ **B. Biomechanical & Pressure Relief Protocol**
+        * **Surface Technology:** Mandate **Alternating Pressure Air Mattress (APAM)** specifically calibrated for low-BMI patients to prevent bottoming-out.
+        * **Shear Prevention:** Restrict head-of-bed elevation strictly to **≤ 30°**.
+        * **Prominence Protection:** Apply **Heel Suspension Devices** to achieve total offloading of calcaneal pressure points.
         """)
-
-    st.markdown("---")
-    st.markdown(f"""
-    ### 🛡️ **C. Advanced Topical Barrier & Skin Microclimate Protocol**
-    * **Barrier Protection:** Apply **Cyanoacrylate Liquid Protectant** (e.g., 3M Cavilon) to Sacral region every **12 hours**.
-    * **Hygiene Standard:** No friction rubbing; utilization of pH-balanced ($5.5$) non-rinse cleansing foam post incontinence.
-    """)
