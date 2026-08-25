@@ -1,0 +1,56 @@
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+import joblib
+
+# 1. إنشاء بيانات سريرية محاكاة
+np.random.seed(42)
+n_samples = 1000
+
+mobility = np.random.choice([1, 2, 3, 4], size=n_samples, p=[0.25, 0.35, 0.25, 0.15])
+activity = np.random.choice([1, 2, 3, 4], size=n_samples, p=[0.3, 0.4, 0.2, 0.1])
+moisture = np.random.choice([1, 2, 3, 4], size=n_samples, p=[0.2, 0.3, 0.3, 0.2])
+albumin = np.round(np.random.normal(3.2, 0.6, n_samples), 1)
+spo2 = np.random.randint(85, 100, size=n_samples)
+bmi = np.round(np.random.normal(26.0, 5.0, n_samples), 1)
+age = np.random.randint(20, 90, size=n_samples)
+days_bedridden = np.random.randint(1, 30, size=n_samples)
+
+alb_diff = np.clip(3.5 - albumin, 0, None)
+spo2_diff = np.clip(95 - spo2, 0, None)
+
+risk_score = (
+    (4 - mobility) * 2.5 +
+    (4 - activity) * 2.0 +
+    (4 - moisture) * 1.5 +
+    alb_diff * 3.0 +
+    spo2_diff * 0.2 +
+    (days_bedridden * 0.15)
+)
+
+y = (risk_score > 10).astype(int)
+
+df = pd.DataFrame({
+    'Mobility_Score': mobility,
+    'Activity_Score': activity,
+    'Moisture_Score': moisture,
+    'Serum_Albumin': albumin,
+    'SpO2_Level': spo2,
+    'BMI': bmi,
+    'Age': age,
+    'Days_Bedridden': days_bedridden,
+    'Pressure_Ulcer_Risk': y
+})
+
+X = df.drop('Pressure_Ulcer_Risk', axis=1)
+y = df['Pressure_Ulcer_Risk']
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+pu_model = RandomForestClassifier(n_estimators=100, random_state=42)
+pu_model.fit(X_train, y_train)
+
+# حفظ الذكاء الاصطناعي
+joblib.dump(pu_model, 'pressure_ulcer_model.pkl')
+print("✅ Model Trained and Saved!")
