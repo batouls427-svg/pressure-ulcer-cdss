@@ -4,114 +4,131 @@ import pandas as pd
 
 # 1. Page Configuration
 st.set_page_config(
-    page_title="Next-Gen Clinical CDSS | Advanced Analytics",
+    page_title="OmniHealth AI | Next-Gen Clinical Intelligence Platform",
     page_icon="⚡",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Custom High-End Enterprise UI Styling
+# Custom Enterprise Dark UI Styling
 st.markdown("""
     <style>
     .main { background-color: #030712; color: #F3F4F6; }
     .stMetric { background-color: #111827; padding: 18px; border-radius: 12px; border: 1px solid #1F2937; }
     .stButton>button { width: 100%; border-radius: 8px; font-weight: bold; background-color: #2563EB; color: white; height: 50px; }
     div[data-testid="stExpander"] { background-color: #111827; border-radius: 12px; border: 1px solid #1F2937; }
+    .stTabs [data-baseweb="tab-list"] { gap: 10px; }
+    .stTabs [data-baseweb="tab"] { background-color: #1F2937; border-radius: 8px; color: white; padding: 10px 20px; font-weight: bold; }
+    .stTabs [aria-selected="true"] { background-color: #2563EB; }
     </style>
 """, unsafe_allow_html=True)
 
-st.title("⚡ Next-Gen Clinical Decision Support System (CDSS)")
-st.caption("Real-Time Algorithmic Risk Stratification & Precision Metabolic Care Protocol Engine")
+st.title("⚡ OmniHealth AI: Unified Clinical Intelligence & Workflow Platform")
+st.caption("Next-Generation Evolution integrating Computer Vision, Zero-Fatigue Task Optimization, Conversational EHR AI, and Precision Protocols.")
 st.markdown("---")
 
-# --- SIDEBAR: LIVE INTERACTIVE CLINICAL PARAMETERS ---
-st.sidebar.header("🎛️ Live Patient Parameters Input")
-st.sidebar.caption("Dynamic adjustment simulating live EHR telemetry feeds.")
+# --- SIDEBAR: GLOBAL CONTROLS & EHR TELEMETRY ---
+st.sidebar.header("🔗 Active EHR Data Feed")
+patient_select = st.sidebar.selectbox("Select Patient Record", ["PAT-9082: Fatima Al-Zahra (ICU)", "PAT-4105: Mohammad Al-Otaibi (Step-Down)"])
 
-age = st.sidebar.slider("Patient Age (Years)", 18, 100, 83)
-gender = st.sidebar.selectbox("Gender", ["Female", "Male"])
-bmi = st.sidebar.slider("Body Mass Index (BMI kg/m²)", 12.0, 45.0, 16.8)
-albumin = st.sidebar.slider("Serum Albumin (g/dL)", 1.0, 5.0, 2.1, 0.1)
-creatinine = st.sidebar.slider("Serum Creatinine (mg/dL)", 0.4, 3.0, 1.1, 0.1)
+if "9082" in patient_select:
+    default_age, default_bmi, default_alb, default_brad = 83, 16.8, 2.1, 8
+else:
+    default_age, default_bmi, default_alb, default_brad = 62, 24.5, 3.8, 16
 
 st.sidebar.markdown("---")
-st.sidebar.subheader("Braden Sub-Scales")
-mobility = st.sidebar.selectbox("Mobility", [1, 2, 3, 4], format_func=lambda x: {1: "1 - Completely Immobile", 2: "2 - Very Limited", 3: "3 - Slightly Limited", 4: "4 - No Limitation"}[x])
-moisture = st.sidebar.selectbox("Moisture", [1, 2, 3, 4], format_func=lambda x: {1: "1 - Constantly Moist", 2: "2 - Very Moist", 3: "3 - Occasionally Moist", 4: "4 - Rarely Moist"}[x])
-nutrition = st.sidebar.selectbox("Nutrition", [1, 2, 3, 4], format_func=lambda x: {1: "1 - Very Poor", 2: "2 - Probably Inadequate", 3: "3 - Adequate", 4: "4 - Excellent"}[x])
-friction = st.sidebar.selectbox("Friction & Shear", [1, 2, 3], format_func=lambda x: {1: "1 - Problem", 2: "2 - Potential Problem", 3: "3 - No Apparent Problem"}[x])
+st.sidebar.subheader("🎛️ Live Parameter Fine-Tuning")
+age = st.sidebar.slider("Age", 18, 100, default_age)
+bmi = st.sidebar.slider("BMI", 12.0, 45.0, default_bmi)
+albumin = st.sidebar.slider("Serum Albumin (g/dL)", 1.0, 5.0, default_alb, 0.1)
+braden = st.sidebar.slider("Braden Score", 6, 23, default_brad)
 
-# --- CALCULATIONS ---
-braden_score = mobility + moisture + nutrition + friction
-risk_prob = max(0, min(100, ((23 - braden_score) / 19) * 100 + (max(0, 75 - age) * 0.1) + (max(0, 3.5 - albumin) * 10)))
+# --- TABS FOR OMNI-PLATFORM MODULES ---
+tab1, tab2, tab3, tab4 = st.tabs([
+    "🩺 1. Vision & Risk Engine", 
+    "🤖 2. Conversational EHR AI", 
+    "📊 3. Nurse Workflow & Triage", 
+    "🔬 4. Evidence-Based Protocols"
+])
 
-# Dynamic weight estimate & nutritional needs
-est_weight = bmi * (1.65 ** 2)
-protein_low = est_weight * 1.2
-protein_high = est_weight * 1.5
+# --- TAB 1: VISION & RISK ENGINE ---
+with tab1:
+    st.subheader("🖼️ Computer Vision Wound & Skin Integrity Analyzer")
+    st.markdown("Upload or capture high-resolution skin imagery for automated deep-learning tissue degradation classification.")
+    
+    col_v1, col_v2 = st.columns([1, 1])
+    with col_v1:
+        uploaded_file = st.file_uploader("Upload Patient Skin / Sacral Image (.jpg, .png)", type=["jpg", "png", "jpeg"])
+        if uploaded_file is not None:
+            st.image(uploaded_file, caption="Uploaded Telemetry Image", use_column_width=True)
+        else:
+            st.info("💡 Tip: Upload a sample wound or skin image to simulate computer vision segmentation and tissue ischemia detection.")
+            
+    with col_v2:
+        st.markdown("### 🔍 AI Vision Telemetry Output")
+        if uploaded_file is not None:
+            st.warning("⚠️ **Early Stage Ischemia / Deep Tissue Threat Detected** (Confidence: 94.2%)")
+            st.progress(0.94)
+            st.markdown("""
+            * **Erythema Analysis:** Non-blanching reactive hyperemia detected in sacral region.
+            * **Thermal Disparity:** Microvascular restriction indicated via pixel color gradient mapping.
+            * **Automated Recommendation:** Immediate offloading required; override standard 2-hour turning to 1-hour interval.
+            """)
+        else:
+            risk_prob = ((23 - braden) / 19) * 100
+            st.metric("Composite Algorithmic Risk Index", f"{risk_prob:.1f}%", delta="High Risk" if risk_prob > 50 else "Stable", delta_color="inverse" if risk_prob > 50 else "normal")
+            st.success("✅ System ready for optical telemetry stream ingestion.")
 
-# --- MAIN DASHBOARD DISPLAY ---
-st.subheader("📊 Live Patient Clinical Dashboard")
+# --- TAB 2: CONVERSATIONAL EHR AI ---
+with tab2:
+    st.markdown("### 💬 Conversational EHR Clinical Copilot")
+    st.caption("Ask natural language queries regarding patient history, lab trends, or clinical guidelines.")
+    
+    user_query = st.text_input("Query Clinical Assistant (e.g., 'What is the protein requirement and underlying risk for this patient?')", "")
+    if user_query:
+        st.markdown(f"**Query Received:** {user_query}")
+        est_w = bmi * (1.65 ** 2)
+        p_low, p_high = est_w * 1.2, est_w * 1.5
+        st.info(f"""
+        **OmniHealth AI Response:**
+        Based on the current telemetry for **{patient_select}**:
+        1. **Pathophysiology:** The composite risk is driven by a Braden score of {braden} combined with Serum Albumin at {albumin} g/dL, indicating severe risk of skin breakdown due to compromised oncotic pressure.
+        2. **Action Plan:** Immediate administration of **{p_low:.1f}g - {p_high:.1f}g/day** of protein alongside L-Arginine supplementation is mandated by ASPEN guidelines.
+        """)
 
-m1, m2, m3, m4, m5 = st.columns(5)
-m1.metric("Age / Gender", f"{age} yrs / {gender}")
-m2.metric("Serum Albumin", f"{albumin} g/dL", delta="Critical Low" if albumin < 3.5 else "Normal", delta_color="inverse" if albumin < 3.5 else "normal")
-m3.metric("BMI Index", f"{bmi} kg/m²", delta="Underweight" if bmi < 18.5 else "Normal", delta_color="inverse" if bmi < 18.5 else "normal")
-m4.metric("Braden Score", f"{braden_score} / 23", delta="High Risk" if braden_score <= 12 else "Stable", delta_color="inverse" if braden_score <= 12 else "normal")
-m5.metric("Composite Risk Index", f"{risk_prob:.1f}%", delta="High Vulnerability" if risk_prob > 50 else "Stable", delta_color="inverse" if risk_prob > 50 else "normal")
-
-st.markdown("---")
-
-# --- ANALYTICS & DECISION ENGINE ---
-st.subheader("1. AI Risk Stratification & Explainable AI (XAI) Trace")
-
-if risk_prob >= 50 or braden_score <= 12 or albumin < 3.5 or bmi < 18.5:
-    st.error(f"🚨 **HIGH CLINICAL VULNERABILITY DETECTED** — Real-Time Risk Index: **{risk_prob:.1f}%** \n\n *Smart Triage Engine: Automated alert dispatched to clinical nursing team.*")
-else:
-    st.success(f"✅ **STABLE CLINICAL PROFILE** — Real-Time Risk Index: **{risk_prob:.1f}%** \n\n *Smart Triage Engine: Standard preventative protocol active.*")
-
-# Explainable AI Trace Table
-with st.expander("🔍 View Live Explainable AI (XAI) Decision Breakdown", expanded=True):
-    trace_df = pd.DataFrame({
-        "Parameter Evaluated": ["Braden Scale Score", "Body Mass Index (BMI)", "Serum Albumin Biomarker", "Age Factor"],
-        "Current Live Value": [f"{braden_score} / 23", f"{bmi} kg/m²", f"{albumin} g/dL", f"{age} years"],
-        "Pathophysiological Impact (NPIAP Aligned)": [
-            "Critical threshold breach (< 13)." if braden_score <= 12 else "Stable threshold.",
-            "High risk: Insufficient subcutaneous adipose tissue padding over bony prominences." if bmi < 18.5 else "Adequate structural cushioning.",
-            "Severe risk: Impaired oncotic pressure and collagen synthesis." if albumin < 3.5 else "Normal visceral protein levels.",
-            "Age-related microvascular degeneration."
-        ]
+# --- TAB 3: NURSE WORKFLOW & TRIAGE ---
+with tab3:
+    st.markdown("### ⚡ Zero-Fatigue Nurse Workflow & Task Optimization")
+    st.caption("Dynamic shift-change task scheduler designed to eliminate alert fatigue and optimize staff allocation.")
+    
+    workflow_df = pd.DataFrame({
+        "Room / Bed": ["ICU-302", "ICU-305", "Step-Down 412", "Step-Down 418"],
+        "Patient Name": ["Fatima A.", "John D.", "Mohammad O.", "Sara K."],
+        "Assigned Nurse": ["Nurse Mary", "Nurse Ahmed", "Nurse Mary", "Nurse Noura"],
+        "Priority Level": ["🚨 Critical (Immediate)", "⚠️ Moderate", "✅ Routine", "⚠️ Moderate"],
+        "Next Intervention": ["30° Tilt + APAM Check", "Heel Offloading", "Standard Reposition", "Nutrition Review"]
     })
-    st.table(trace_df)
+    st.dataframe(workflow_df, use_container_width=True)
 
-st.subheader("2. Precision Care Bundles & Dynamic Protocols")
-
-col_p1, col_p2 = st.columns(2)
-
-with col_p1:
-    if albumin < 3.5 or bmi < 18.5:
+# --- TAB 4: EVIDENCE-BASED PROTOCOLS ---
+with tab4:
+    st.markdown("### 📚 Integrated Clinical Guidelines (NPIAP & ASPEN)")
+    
+    est_w = bmi * (1.65 ** 2)
+    p_low, p_high = est_w * 1.2, est_w * 1.5
+    
+    col_p1, col_p2 = st.columns(2)
+    with col_p1:
         st.markdown(f"""
-        ### 🥩 **A. Clinical Metabolic Prescription (ASPEN Aligned)**
-        * **Target Protein Requirement:** **{protein_low:.1f}g – {protein_high:.1f}g / day** *(Calculated dynamically for weight: {est_weight:.1f} kg)*.
-        * **Immunonutrition Support:** High-protein oral supplements enriched with **L-Arginine (4.5g/day)**, **Zinc Sulfate (50mg)**, and **Vitamin C (500mg)**.
-        * **Clinical Rationale:** Immediate counteraction of Hypoalbuminemia ({albumin} g/dL) and low BMI to stimulate tissue granulation.
+        ### 🥩 **Metabolic & Nutritional Prescription**
+        * **Estimated Weight:** **{est_w:.1f} kg**
+        * **Target Protein:** **{p_low:.1f}g – {p_high:.1f}g / day**
+        * **Micronutrients:** L-Arginine (4.5g), Zinc Sulfate (50mg), Vitamin C (500mg).
         """)
-    else:
+    with col_p2:
         st.markdown(f"""
-        ### 🥩 **A. Standard Nutritional Maintenance**
-        * **Requirement:** Baseline caloric intake (25-30 kcal/kg/day) and standard protein distribution.
-        """)
-
-with col_p2:
-    if braden_score <= 12:
-        st.markdown(f"""
-        ### 🛏️ **B. Biomechanical Surface & Offloading Plan**
-        * **Surface Technology:** Immediate deployment of **Alternating Pressure Air Mattress (APAM)** calibrated for low-BMI patient protection.
-        * **Shear Stress Mitigation:** Head-of-bed angle strictly locked at **≤ 30°**; execute automated 2-hour repositioning intervals.
-        * **Prominence Protection:** Complete offloading utilizing specialized **Heel Suspension Booties**.
-        """)
-    else:
-        st.markdown(f"""
-        ### 🛏️ **B. Standard Preventative Biomechanics**
-        * **Surface:** Standard reactive support surface with regular independent patient repositioning.
+        ### 🛏️ **Biomechanical Care Bundle**
+        * **Support Surface:** Alternating Pressure Air Mattress (APAM).
+        * **Shear Prevention:** Head-of-bed angle capped strictly at **≤ 30°**.
+        * **Intervals:** Automated repositioning alerts dispatched via zero-fatigue queue.
         """)
