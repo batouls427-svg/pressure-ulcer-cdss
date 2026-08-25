@@ -1,0 +1,74 @@
+import streamlit as st
+import joblib
+import pandas as pd
+
+st.set_page_config(page_title="Pressure Ulcer Risk & Turning CDSS", page_icon="🏥", layout="wide")
+
+st.title("🏥 Pressure Ulcer Risk Optimization System")
+st.caption("Clinical Decision Support System (CDSS) for Nursing Protocols")
+st.write("---")
+
+# تحميل النموذج
+model = joblib.load('pressure_ulcer_model.pkl')
+
+st.sidebar.header("📋 Patient Clinical Data")
+mobility = st.sidebar.slider("Mobility (1: Immobile - 4: Normal)", 1, 4, 2)
+activity = st.sidebar.slider("Activity (1: Bedfast - 4: Walks)", 1, 4, 1)
+moisture = st.sidebar.slider("Moisture (1: Constantly Moist - 4: Dry)", 1, 4, 2)
+
+st.sidebar.write("---")
+st.sidebar.header("🧪 Biomarkers & Vitals")
+albumin = st.sidebar.number_input("Serum Albumin (g/dL)", 1.0, 6.0, 2.8, 0.1)
+spo2 = st.sidebar.slider("SpO2 Saturation (%)", 70, 100, 92)
+bmi = st.sidebar.number_input("BMI (kg/m²)", 10.0, 60.0, 22.0, 0.5)
+age = st.sidebar.slider("Age (Years)", 18, 100, 68)
+days_bedridden = st.sidebar.number_input("Days Bedridden", 0, 90, 7)
+
+if st.button("Evaluate Patient Risk", type="primary"):
+    input_data = [[mobility, activity, moisture, albumin, spo2, bmi, age, days_bedridden]]
+    prediction = model.predict(input_data)[0]
+    prob = model.predict_proba(input_data)[0][1]
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.subheader("📊 Risk Classification")
+        if prediction == 1:
+            st.error(f"🚨 **HIGH RISK DETECTED**\n\nProbability: **{prob*100:.1f}%**")
+        else:
+            st.success(f"✅ **LOW RISK DETECTED**\n\nProbability: **{prob*100:.1f}%**")
+
+    with col2:
+        st.subheader("📋 Nursing Protocol Recommendation")
+        if prediction == 1:
+            st.warning("""
+            * **Repositioning Interval:** Every 60 - 90 minutes
+            * **Support Surface:** Active Air Alternating Mattress
+            * **High Pressure Zones:** Sacrum, Heels, Trochanter
+            """)
+        else:
+            st.info("""
+            * **Repositioning Interval:** Every 2 - 3 hours
+            * **Support Surface:** Standard Foam Mattress
+            * **Monitoring:** Standard Shift Protocols
+            """)
+
+    st.write("---")
+    st.subheader("📅 Recommended 8-Hour Turning Schedule")
+    
+    if prediction == 1:
+        schedule = [
+            {"Time": "08:00 AM", "Position": "Left Lateral (30° Tilt)", "Action": "Check Skin & Moisture"},
+            {"Time": "09:30 AM", "Position": "Supine", "Action": "Heel Offloading Check"},
+            {"Time": "11:00 AM", "Position": "Right Lateral (30° Tilt)", "Action": "Apply Barrier Cream"},
+            {"Time": "12:30 PM", "Position": "Left Lateral (30° Tilt)", "Action": "Check Skin Integrity"},
+            {"Time": "02:00 PM", "Position": "Supine", "Action": "Assess Albumin Intake"}
+        ]
+    else:
+        schedule = [
+            {"Time": "08:00 AM", "Position": "Left Lateral", "Action": "Routine Skin Check"},
+            {"Time": "11:00 AM", "Position": "Right Lateral", "Action": "Routine Check"},
+            {"Time": "02:00 PM", "Position": "Supine", "Action": "Shift Handover Notes"}
+        ]
+        
+    st.dataframe(pd.DataFrame(schedule), use_container_width=True)
